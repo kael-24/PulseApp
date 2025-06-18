@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import MenuIcon from '@mui/icons-material/Menu'
 
@@ -6,6 +6,11 @@ import { useAuthContext } from '../hooks/useAuthContext'
 
 const Navbar = () => {
     const { user } = useAuthContext();
+    const navigate = useNavigate();
+
+    const handleUserInfo = () => {
+        navigate('/account');
+    }
     
     return (
         <header className="bg-gray-900 text-white p-4 flex justify-between items-center">
@@ -16,7 +21,7 @@ const Navbar = () => {
             <nav>
                 <div className="text-sm">
                     <span className="text-gray-300">{user.email}</span>
-                    <AccountCircleIcon className="color-white-700" fontSize="large" />
+                    <AccountCircleIcon onClick={handleUserInfo} className="color-white-700 cursor-pointer ml-2 hover:text-blue-300 transition" fontSize="large" />
                 </div>
                 
             </nav>
