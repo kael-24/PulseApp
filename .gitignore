@@ -1,0 +1,53 @@
+##mine
+# ---------------------
+# General
+# ---------------------
+node_modules/
+**/node_modules/
+*.log
+logs/
+*.local
+.DS_Store
+
+# ---------------------
+# Environment files
+# ---------------------
+.env
+.env.*.local
+**/.env
+**/.env.*.local
+
+# ---------------------
+# Frontend (Vite + React)
+# ---------------------
+frontend/dist/
+frontend/node_modules/
+frontend/.env
+frontend/.env.*.local
+
+# ---------------------
+# Backend (e.g., Express/Node)
+# ---------------------
+backend/dist/
+backend/node_modules/
+backend/.env
+backend/.env.*.local
+
+# ---------------------
+# Editor & OS files
+# ---------------------
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ---------------------
+# Optional: lockfiles (if you prefer to ignore them)
+# ---------------------
+# yarn.lock
+# package-lock.json
+# pnpm-lock.yaml
