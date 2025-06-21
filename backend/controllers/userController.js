@@ -13,7 +13,7 @@ const userSignup = async (req, res) => {
     try {
         const user = await User.signup(name, email, password);
         const token = createToken(user._id);
-        res.status(200).json({ email, token });
+        res.status(200).json({ name, email, token });
     } catch (error) {
         res.status(401).json({ error: error.message});
     }
@@ -25,10 +25,29 @@ const userLogin = async (req, res) => {
     try {
         const user = await User.login(email, password);
         const token = createToken(user._id);
-        res.status(200).json({ email, token });
+        res.status(200).json({ name: user.name, email, token });
     } catch (error) {
         res.status(401).json({ error: error.message})
     }
 }
 
-module.exports = {userSignup, userLogin}
+const userEdit = async (req, res) => {
+    const { email, name, currentPassword, newPassword } = req.body;
+
+    try {
+        const user = await User.userEdit(email, name, currentPassword, newPassword);
+        const token = createToken(user._id);
+
+        const response = {
+            name,
+            email,
+            token,
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(401).json({error: error.message});
+    }
+}
+
+module.exports = {userSignup, userLogin, userEdit}

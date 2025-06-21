@@ -18,7 +18,7 @@ const Signup = () => {
     <div className={authBody}>
         <div className={formContainer}>
         <form onSubmit={handleSubmit} className="space-y-6">
-            <h2 className="text-3xl font-bold text-center text-white">Singup</h2>
+            <h2 className="text-3xl font-bold text-center text-white">Signup</h2>
 
             <div className="space-y-2">
             <label className={label}>Name</label>
@@ -57,7 +57,7 @@ const Signup = () => {
             disabled={isLoading}
             className={btn}
             >
-            {isLoading ? "Singing up..." : "Signup"}
+            {isLoading ? "Signing up..." : "Signup"}
             </button>
 
             {error && (

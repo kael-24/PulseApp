@@ -15,7 +15,7 @@ const userSchema = new Schema ({
     }, 
     password: {
         type: String,
-        require: true
+        required: true
     }
 })
 
@@ -77,6 +77,33 @@ userSchema.statics.login = async function(email, password) {
     }
 
     return user;
+}
+
+userSchema.statics.userEdit = async function(email, name, currentPassword, newPassword) {
+    const exists = await this.findOne({ email });
+    
+    if (!exists) {
+        throw Error('You are logged in but you dont exist in the database. Fuck you!')
+    }
+
+    const updateFields = {};
+    
+    if (name) {
+        updateFields.name = name;
+    }
+    if (newPassword) {
+        match = await bcrypt.compare(currentPassword, exists.password)
+
+        if (!match) {
+            throw Error('Invalid Current Password');
+        } 
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(newPassword, salt);
+        updateFields.password = hash;
+    }
+
+    const updateUser = await this.findByIdAndUpdate(exists._id, updateFields, { new: true })
+    return updateUser;
 }
 
 module.exports = mongoose.model('User', userSchema);

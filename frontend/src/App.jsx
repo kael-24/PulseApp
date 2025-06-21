@@ -1,16 +1,21 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
 import { useAuthContext } from './hooks/useAuthContext';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import EditUser from './pages/EditUser';
 
 function App() {
   const { user, loading } = useAuthContext();
 
   if (loading) {
-    return null;
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <CircularProgress color="primary" />
+      </div>
+    );
   }
 
   return (
@@ -27,6 +32,10 @@ function App() {
         <Route 
           path="/login"
           element={!user ? <Login /> : <Navigate to='/' />}
+        />
+        <Route 
+          path="/edit-user"
+          element={user ? <EditUser /> : <Navigate to='/login' />}
         />
       </Routes>
     </BrowserRouter>
