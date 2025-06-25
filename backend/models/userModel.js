@@ -106,4 +106,24 @@ userSchema.statics.userEdit = async function(email, name, currentPassword, newPa
     return updateUser;
 }
 
+userSchema.statics.deleteUser = async function(email, password) {
+    const user = await this.findOne({ email });
+
+    if(!user) {
+        throw Error("User does not exists!");
+    }
+
+    if (!password)
+        throw Error("Please confirm your password");
+
+    const match = await bcrypt.compare(password, user.password)
+    
+    if(!match) {
+        throw Error("Invalid Password");
+    }
+
+    await user.deleteOne();
+    return user;
+}
+
 module.exports = mongoose.model('User', userSchema);

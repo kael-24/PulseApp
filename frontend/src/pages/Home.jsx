@@ -1,4 +1,5 @@
 import Navbar from '../components/Navbar'
+import Stopwatch from '../components/Stopwatch';
 
 import { useLogout } from '../hooks/useLogout';
 
@@ -11,8 +12,7 @@ const Home = () => {
     return (
         <>
             <Navbar />
-            <h1>This is your HOME!</h1>
-            <button onClick={handleLogout}>Logout</button>
+            <Stopwatch />
         </>
     );
 }
