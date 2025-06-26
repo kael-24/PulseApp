@@ -7,28 +7,34 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema ({
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        trim: true,
     }, 
     password: {
         type: String,
         required: true
     }
-})
+}, { timestamps: true });
 
+/**
+ * User signup method
+ * Creates a new user with validation
+ */
 userSchema.statics.signup = async function(name, email, password) {
-    console.log(email, password);
     // VALIDATES EMPTY FIELDS
-    if (!email || !password) {
-        throw Error('All fields must be filled!');
+    if (!name || !email || !password) {
+        throw Error('All fields are required');
     }
 
     // VALIDATES EMAIL
     if (!validator.isEmail(email)){
-        throw Error('Invalid email');
+        throw Error('Invalid email format');
     }
 
     // VALIDATES PASSWORD
@@ -39,13 +45,13 @@ userSchema.statics.signup = async function(name, email, password) {
         minSymbols: 0,
         minUppercase: 0,
     })){
-        throw Error('Password is weak!');
+        throw Error('Password must be at least 8 characters and include at least one number');
     }
 
     // VALIDATES EXISTING EMAIL
     const exists = await this.findOne({ email });
     if (exists) {
-        throw Error('Email is already taken!');
+        throw Error('Email is already in use');
     }
 
     // PASSWORD HASHING
@@ -58,70 +64,119 @@ userSchema.statics.signup = async function(name, email, password) {
     return user;
 }
 
+/**
+ * User login method
+ * Validates credentials and returns user
+ */
 userSchema.statics.login = async function(email, password) {
     // VALIDATE EMPTY FIELDS
     if (!email || !password) {
-        throw Error('All fields must be filled');
+        throw Error('Email and password are required');
     }
 
     // VERIFY EXISTING USER
     const user = await this.findOne({ email });
     if (!user) {
-        throw Error('User does not exists')
+        throw Error('Incorrect email or password');
     }
 
     // VERIFY PASSWORD
-    match = await bcrypt.compare(password, user.password)
+    const match = await bcrypt.compare(password, user.password);
     if (!match){
-        throw Error('Wrong Credentials');
+        throw Error('Incorrect email or password');
     }
 
     return user;
 }
 
+/**
+ * User edit method
+ * Updates user information with validation
+ */
 userSchema.statics.userEdit = async function(email, name, currentPassword, newPassword) {
-    const exists = await this.findOne({ email });
+    // Find the user
+    const user = await this.findOne({ email });
     
-    if (!exists) {
-        throw Error('You are logged in but you dont exist in the database. Fuck you!')
+    if (!user) {
+        throw Error('User not found');
     }
 
     const updateFields = {};
     
-    if (name) {
+    // Handle name update
+    if (name !== undefined) {
         updateFields.name = name;
     }
+    
+    // Handle password update
     if (newPassword) {
-        match = await bcrypt.compare(currentPassword, exists.password)
-
+        // Need current password to change password
+        if (!currentPassword) {
+            throw Error('Current password is required to change password');
+        }
+        
+        // Verify current password
+        const match = await bcrypt.compare(currentPassword, user.password);
         if (!match) {
-            throw Error('Invalid Current Password');
-        } 
+            throw Error('Invalid current password');
+        }
+        
+        // Validate new password strength
+        if (!validator.isStrongPassword(newPassword, {
+            minLength: 8,
+            minLowercase: 1,
+            minNumbers: 1,
+            minSymbols: 0,
+            minUppercase: 0,
+        })){
+            throw Error('New password must be at least 8 characters and include at least one number');
+        }
+        
+        // Hash new password
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
         updateFields.password = hash;
     }
 
-    const updateUser = await this.findByIdAndUpdate(exists._id, updateFields, { new: true })
-    return updateUser;
+    // Ensure there's something to update
+    if (Object.keys(updateFields).length === 0) {
+        throw Error('No changes to update');
+    }
+
+    // Update the user
+    const updatedUser = await this.findByIdAndUpdate(
+        user._id, 
+        updateFields, 
+        { new: true }
+    );
+    
+    return updatedUser;
 }
 
+/**
+ * User delete method
+ * Permanently removes a user account
+ */
 userSchema.statics.deleteUser = async function(email, password) {
+    // Find the user
     const user = await this.findOne({ email });
 
     if(!user) {
-        throw Error("User does not exists!");
+        throw Error("User not found");
     }
 
-    if (!password)
-        throw Error("Please confirm your password");
+    if (!password) {
+        throw Error("Password is required to delete account");
+    }
 
-    const match = await bcrypt.compare(password, user.password)
+    // Verify password
+    const match = await bcrypt.compare(password, user.password);
     
     if(!match) {
-        throw Error("Invalid Password");
+        throw Error("Invalid password");
     }
 
+    // Delete the user
     await user.deleteOne();
     return user;
 }

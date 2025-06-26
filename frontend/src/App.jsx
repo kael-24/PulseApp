@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
-import EditUser from './pages/EditUser';
+import ProfileSettings from './pages/ProfileSettings';
 
 function App() {
   const { user, loading } = useAuthContext();
@@ -34,8 +34,8 @@ function App() {
           element={!user ? <Login /> : <Navigate to='/' />}
         />
         <Route 
-          path="/edit-user"
-          element={user ? <EditUser /> : <Navigate to='/login' />}
+          path="/edit-profile"
+          element={user ? <ProfileSettings /> : <Navigate to='/login' />}
         />
       </Routes>
     </BrowserRouter>

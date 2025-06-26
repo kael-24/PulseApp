@@ -1,31 +1,54 @@
 import { useState } from "react"
 import { useAuthContext } from "./useAuthContext";
 
-const UseDeleteUser = () => {
+/**
+ * Hook for handling user account deletion functionality
+ */
+const useDeleteUser = () => {
     const [deleteError, setDeleteError] = useState(null);
+    const [isDeleteLoading, setIsDeleteLoading] = useState(false);
     const { dispatch } = useAuthContext();
 
+    /**
+     * Deletes a user account
+     * @param {string} email - User's email
+     * @param {string} password - User's password for confirmation
+     */
     const deleteUser = async (email, password) => {
+        setIsDeleteLoading(true);
+        setDeleteError(null);
+
         try {
+            if (!password) {
+                throw new Error("Password is required to delete your account");
+            }
+
             const response = await fetch('/api/users/userDelete', {
                 method: "DELETE",
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password})
-            })
-            const json = await response.json()
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const json = await response.json();
+
             if (!response.ok) {
-                setDeleteError(json.error);
-                return
+                throw new Error(json.error || "Failed to delete account");
             }
-            dispatch({type: 'LOGOUT'})
+
+            // Clear local storage and global state
             localStorage.removeItem('user');
-        } catch (error) {
-            setDeleteError(error.message);
+            dispatch({ type: 'LOGOUT' });
+            
+            return true;
+        } catch (err) {
+            setDeleteError(err.message);
+            return false;
+        } finally {
+            setIsDeleteLoading(false);
         }
+    };
 
-    }
+    return { deleteUser, deleteError, isDeleteLoading };
+};
 
-    return { deleteUser, deleteError }
-}
-
-export default UseDeleteUser
+export default useDeleteUser

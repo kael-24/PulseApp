@@ -1,80 +1,58 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuthContext } from "./useAuthContext";
 
 /**
  * Hook for handling user profile editing functionality
  */
 const useEditUser = () => {
-    const [nameError, setNameError] = useState(null);
-    const [passwordError, setPasswordError] = useState(null);
+    const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [nameSuccess, setNameSuccess] = useState(false);
-    const [passwordSuccess, setPasswordSuccess] = useState(false);
-    const { user, dispatch } = useAuthContext();
+    const [isSuccess, setIsSuccess] = useState(false);
+    const { dispatch } = useAuthContext();
+    const intervalRef = useRef(null);
 
-    const makeError = (message, code) => {
-        const err = new Error(message);
-        err.code = code;
-        return err;
-    };
-
-
-    /**
-     * Validates password changes
-     * @param {string} currentPassword - User's current password
-     * @param {string} newPassword - User's new password
-     * @param {string} retypePassword - Re-entered new password for confirmation
-     * @returns {object} - Validation result
-     */
-    const validatePasswordChange = (currentPassword, newPassword, retypePassword) => {
-        if (newPassword && !currentPassword) 
-            throw makeError("Enter your current password first", "PASSWORD_ERROR");
-        if (currentPassword && (!newPassword || !retypePassword)) 
-            throw makeError("Please confirm your new password", "PASSWORD_ERROR");
-        if (newPassword && retypePassword && newPassword !== retypePassword) 
-            throw makeError("New passwords do not match", "PASSWORD_ERROR");
-
-        return {
-            currentPassword,
-            newPassword: newPassword && retypePassword && newPassword === retypePassword ? newPassword : null
-        };
-    };
+    // Clear error and success messages after a delay
+    useEffect(() => {
+        if (error || isSuccess) {
+            intervalRef.current = setTimeout(() => {
+                setError(null);   
+                setIsSuccess(false);    
+            }, 3000);
+            
+            return () => clearTimeout(intervalRef.current);
+        }
+    }, [error, isSuccess]);
 
     /**
      * Edit user details
      * @param {string} email - User's current email
-     * @param {object} updates - Object containing fields to update (name, newEmail, passwordData)
+     * @param {object} updates - Object containing fields to update (name, password)
      */
     const editUserDetails = async (email, updates = {}) => {
         setIsLoading(true);
-        setNameSuccess(false);
-        setPasswordSuccess(false);
-        
+        setError(null);
+        setIsSuccess(false);
+
         try {
             const { name, currentPassword, newPassword, retypePassword } = updates;
             
-            console.log(currentPassword, newPassword, retypePassword)
             // Prepare base payload
             const payload = { email };
             
             // Add name if provided
-            if (name && name !== user.name) {
-                payload.name = name; 
-            } else if (name && name === user.name) {
-                throw makeError('Name should be different from current name', "NAME_ERROR");
+            if (name !== undefined) {
+                payload.name = name.trim();
             }
             
-            // PASSWORD HANDLER
-            const { currentPassword: validatedCurrentPassword, newPassword: validatedNewPassword } = validatePasswordChange(currentPassword, newPassword, retypePassword);
-
-            if (validatedCurrentPassword && validatedNewPassword) {
-                payload.currentPassword = validatedCurrentPassword;
-                payload.newPassword = validatedNewPassword;
-            }
-
-            // Validate that at least one field is being updated
-            if (Object.keys(payload).length <= 1) {
-                throw Error("You haven't updated anything");
+            // Add password fields if provided
+            if (currentPassword && newPassword && retypePassword) {
+                // Only basic check to ensure passwords match before sending to server
+                if (newPassword !== retypePassword) {
+                    throw Error("New passwords do not match");
+                }
+                
+                payload.currentPassword = currentPassword;
+                payload.newPassword = newPassword;
             }
             
             // Make API call
@@ -90,35 +68,25 @@ const useEditUser = () => {
                 throw Error(json.error || "Failed to update user details");
             }
             
-            // Update global state and localStorage
+            // Update global state
             dispatch({ type: 'UPDATE_USER', payload: json });
-            localStorage.setItem('user', JSON.stringify({ 
-                name: json.name, 
-                email: email, 
+            
+            // Update localStorage with correct format matching login response
+            localStorage.setItem('user', JSON.stringify({
+                name: json.name,
+                email: json.email,
                 token: json.token
             }));
             
-            if (updates.name){
-                setNameSuccess(true);
-            } else if (updates.newPassword) {
-                setPasswordSuccess(true);
-            }
-
+            setIsSuccess(true);
         } catch (err) {
-            if (err.code === 'NAME_ERROR'){
-                setNameError(err.message)
-            } else if (err.code === 'PASSWORD_ERROR') {
-                setPasswordError(err.message)
-            } else {
-                setNameError(err.message)
-                setPasswordError(err.message)
-            }
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
     };
 
-    return { editUserDetails, nameError, passwordError, isLoading, nameSuccess, passwordSuccess };
+    return { editUserDetails, error, isLoading, isSuccess };
 };
 
 export default useEditUser;

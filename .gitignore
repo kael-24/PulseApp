@@ -24,7 +24,6 @@ frontend/dist/
 frontend/node_modules/
 frontend/.env
 frontend/.env.*.local
-frontend/src/components/Stopwatch.jsx
 
 # ---------------------
 # Backend (e.g., Express/Node)
@@ -48,7 +47,8 @@ backend/.env.*.local
 *.sw?
 
 # ---------------------
-# Optional: lockfiles (if you prefer to ignore them)
+# Optional: lockfiles (if you prefer to ignore them)\
+
 # ---------------------
 # yarn.lock
 # package-lock.json
