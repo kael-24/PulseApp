@@ -7,7 +7,7 @@ import { useAuthContext } from "./useAuthContext";
 const useDeleteUser = () => {
     const [deleteError, setDeleteError] = useState(null);
     const [isDeleteLoading, setIsDeleteLoading] = useState(false);
-    const { dispatch } = useAuthContext();
+    const { user, dispatch } = useAuthContext();
 
     /**
      * Deletes a user account
@@ -25,7 +25,10 @@ const useDeleteUser = () => {
 
             const response = await fetch('/api/users/userDelete', {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`
+                },
                 body: JSON.stringify({ email, password })
             });
 

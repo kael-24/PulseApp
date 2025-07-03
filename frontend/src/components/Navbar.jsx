@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
+
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import MenuIcon from '@mui/icons-material/Menu'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -23,7 +24,6 @@ const Navbar = () => {
         logout();
         setMenuOpen(false);
     };
-    
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
     };

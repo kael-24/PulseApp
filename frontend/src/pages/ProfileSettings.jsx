@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuthContext } from "../hooks/useAuthContext";
 import useEditUser from "../hooks/useEditUser";
 import useDeleteUser from "../hooks/useDeleteUser";
-import DialogBox from "../components/DialogBox";
+import ConfirmDialogBox from "../components/DialogBoxes/ConfirmDialogBox";
 
 // icons
 import EditIcon from "@mui/icons-material/Edit";
@@ -323,7 +323,7 @@ const DeleteUserField = ({ onSave, fieldErrors, editMode, setEditMode }) => {
         </div>
       )}
 
-      <DialogBox
+      <ConfirmDialogBox
         isOpen={openDialogBox}
         title="Do you really want to delete your account?"
         message={

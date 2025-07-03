@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const userRoutes = require('./routes/userRoutes');
-
+const stopwatchRoutes =  require('./routes/stopwatchRoutes')
 
 // CREATES VARIABLE FOR EXPRESS
 const app = express();
@@ -13,6 +13,8 @@ app.use(express.json());
 
 // MAIN ROUTES
 app.use('/api/users', userRoutes);
+app.use('/api/stopwatch', stopwatchRoutes);
+
 
 // DATABASE AND PORT CONNECTION
 mongoose.connect(process.env.MONGO_URI)

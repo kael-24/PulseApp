@@ -4,12 +4,15 @@ import './index.css';
 import App from './App';
 
 import { AuthContextProvider } from './context/AuthContext';
+import { StopwatchContextProvider } from './context/StopwachContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <AuthContextProvider>
-      <App />
+      <StopwatchContextProvider>
+        <App />
+      </StopwatchContextProvider>
     </AuthContextProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

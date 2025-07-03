@@ -8,7 +8,7 @@ const useEditUser = () => {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const { dispatch } = useAuthContext();
+    const { user, dispatch } = useAuthContext();
     const intervalRef = useRef(null);
 
     // Clear error and success messages after a delay
@@ -58,7 +58,10 @@ const useEditUser = () => {
             // Make API call
             const response = await fetch('/api/users/userEdit', {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`
+                },
                 body: JSON.stringify(payload)
             });
             
