@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const userRoutes = require('./routes/userRoutes');
-const stopwatchRoutes =  require('./routes/stopwatchRoutes')
+const deepworkRoutes =  require('./routes/deepworkRoutes')
 
 // CREATES VARIABLE FOR EXPRESS
 const app = express();
@@ -13,14 +13,14 @@ app.use(express.json());
 
 // MAIN ROUTES
 app.use('/api/users', userRoutes);
-app.use('/api/stopwatch', stopwatchRoutes);
+app.use('/api/deepwork', deepworkRoutes);
 
 
 // DATABASE AND PORT CONNECTION
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         app.listen(process.env.PORT, () => {
-            console.log(`Sucessfully connected to DB from port ${process.env.PORT}`);
+            console.log(`Successfully connected to DB from port ${process.env.PORT}`);
         })
     })
     .catch((error) => {

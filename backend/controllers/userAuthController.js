@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const {nameValidator, emailValidator, passwordValidator} = require('./inputValidator');
 
 /**
  * Creates a JWT token for user authentication
@@ -19,9 +20,15 @@ const userSignup = async (req, res) => {
     const {name, email, password} = req.body;
 
     try {
-        const user = await User.signup(name, email, password);
+        nameValidator({ name, isRequired: true, checkIfEnough: true });
+        emailValidator({ email, isRequired: true });
+        passwordValidator({ password, isRequired: true, checkIfEnough: true, checkIfStrong:true });
+
+        const normalizedEmail = email.toLowerCase();
+
+        const user = await User.signup(name, normalizedEmail, password);
         const token = createToken(user._id);
-        res.status(200).json({ name, email, token });
+        res.status(200).json({ name, email: normalizedEmail, token });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -35,9 +42,14 @@ const userLogin = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.login(email, password);
+        emailValidator({ email, isRequired: true });
+        passwordValidator({ password, isRequired: true });
+
+        const normalizedEmail = email.toLowerCase();
+
+        const user = await User.login(normalizedEmail, password);
         const token = createToken(user._id);
-        res.status(200).json({ name: user.name, email, token });
+        res.status(200).json({ name: user.name, email: normalizedEmail, token });
     } catch (error) {
         res.status(401).json({ error: error.message });
     }

@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const {nameValidator, passwordValidator} = require('./inputValidator');
 
 /**
  * Creates a JWT token for user authentication
@@ -11,25 +12,39 @@ const createToken = (_id) => {
     return jwt.sign({_id}, process.env.SECRET, {expiresIn: '3d'}); 
 }
 
-
 /**
- * User edit controller
- * Updates user profile information
+ * EDIT USER PROFILE (NAME, PASSWORD)
  */
 const userEdit = async (req, res) => {
-    const { email, name, currentPassword, newPassword } = req.body;
+    const userId = req.user._id
+    const {name, currentPassword, newPassword } = req.body;
 
     try {
-        // Perform update via model
-        const user = await User.userEdit(email, name, currentPassword, newPassword);
+
+        // VALIDATE INPUTS
+        if (name) {
+            nameValidator({ name, checkIfEnough: true});
+        } 
         
-        // Create new token
+        if(!currentPassword && newPassword) {
+            throw Error('Current password is required');
+        } else if (currentPassword && !newPassword) {
+            throw Error('New password is required');
+        } else if (currentPassword && newPassword) {
+            passwordValidator({ password: currentPassword, checkIfEnough: true, checkIfStrong: true });
+            passwordValidator({ password: newPassword, checkIfEnough: true, checkIfStrong: true });
+        }
+
+        // PERFORM UPDATE VIA MODEL
+        const user = await User.userEdit(userId, name, currentPassword, newPassword);
+        
+        // CREATE NEW TOKEN
         const token = createToken(user._id);
 
-        // Return updated user data
+        // RETURN UPDATED USER DATA
         res.status(200).json({ 
             name: user.name, 
-            email: email,
+            email: user.email,
             token 
         });
     } catch (error) {
@@ -42,13 +57,16 @@ const userEdit = async (req, res) => {
  * Permanently removes a user account
  */
 const userDelete = async (req, res) => {
-    const {email, password} = req.body;
+    const userId = req.user._id;
+    const {password} = req.body;
 
     try {
-        await User.deleteUser(email, password);
+        passwordValidator({ password, isRequired: true });
+
+        await User.deleteUser(userId, password);
         res.status(200).json({ message: "Account successfully deleted" });
     } catch (error) {  
-        res.status(400).json({ error: error.message })
+        res.status(400).json({ error: error.message });
     }
 }
 
