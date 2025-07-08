@@ -1,4 +1,4 @@
-const Deepwork = require('../models/deepworkModel')
+const Deepwork = require('../models/deepworkModel');
 const {nameValidator} = require('./inputValidator');
 
 /**

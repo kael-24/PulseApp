@@ -6,7 +6,7 @@ module.exports = function userEditStatics (schema) {
      * User edit method
      * Updates user information with validation
      */
-    schema.statics.userEdit = async function(userId, name, currentPassword, newPassword) {
+    schema.statics.userEditModel = async function(userId, name, currentPassword, newPassword) {
         if (!mongoose.Types.ObjectId.isValid(userId))
             throw Error('User ID is invalid');
         
@@ -57,7 +57,7 @@ module.exports = function userEditStatics (schema) {
      * User delete method
      * Permanently removes a user account
      */
-    schema.statics.deleteUser = async function(userId, password) {
+    schema.statics.deleteUserModel = async function(userId, password) {
         if (!mongoose.Types.ObjectId.isValid(userId)) 
             throw Error('Invalid User ID');
 

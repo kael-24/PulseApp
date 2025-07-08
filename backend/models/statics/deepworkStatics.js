@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { findById } = require('../userModel');
 
 module.exports = function deepworkStatics (schema) {
     /**
@@ -84,9 +85,21 @@ module.exports = function deepworkStatics (schema) {
         return deletedDeepwork;
     }
 
+    /**
+     * 
+     * @param {mongoose._id} userId 
+     */
+    schema.statics.deleteAllDeepworksModel = async function(userId) {
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            throw Error('Invalid User ID');
+        }
+
+        await this.deleteMany({ userId });
+    }
+
 
     /**
-     * UPDATES SESSION NAME // TODO **UNFINISHED
+     * UPDATES SESSION NAME 
      * @param {mongooseID} objectId 
      * @param {String} newName 
      * @returns UPDATED DEEPWORK SESSION

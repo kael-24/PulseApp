@@ -9,17 +9,14 @@ import {
   KeyboardArrowDown,
   History
 } from '@mui/icons-material';
-import { useStopwatch } from '../hooks/useStopwatch';
-import InputDialogBox from './DialogBoxes/InputDialogBox';
-import { useStopwatchContext } from '../hooks/useStopwatchContext';
-import { useLogout } from '../hooks/useLogout';
+import { useDeepwork } from '../hooks/useDeepwork';
+import { useDeepworkContext } from '../hooks/useDeepworkContext';
+import DialogBox from '../components/DialogBox';
 
 const Stopwatch = () => {
-  const { createStopwatchSession, error } = useStopwatch();
-  const { isCurrentSession, dispatch } = useStopwatchContext();
-  const { logout } = useLogout();
+  const { createDeepworkSession } = useDeepwork();
+  const { dispatch: UNUSED_DISPATCH } = useDeepworkContext();
   
-
   const [openDialogBox, setOpenDialogBox] = useState(false); 
 
   const [time, setTime] = useState(0);
@@ -28,19 +25,14 @@ const Stopwatch = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState('work'); // 'work' or 'rest'
   const [logs, setLogs] = useState([]);
-  const [sessionName, setSessionName] = useState('') 
   const [showLogs, setShowLogs] = useState(true);
   const intervalRef = useRef(null);
   const modeIntervalRef = useRef(null);
 
-  /* 
-  * TRIGGERS DIALOG BOX WHEN THERE IS AN ERROR
-  */
   useEffect(() => {
-    if (error) {
-      setOpenDialogBox(true);
-    }
-  }, [error])
+    const totalLogsTime = logs.reduce((sum, log) => sum + log.timeMS, 0);
+    setTime(totalLogsTime);
+  }, [logs]);
 
   /**
    * STOPWATCH TIMER LOGIC
@@ -61,7 +53,7 @@ const Stopwatch = () => {
         }
       }, 100);
 
-      // IF ITS NOT RUNNING ONLY STOP THE TIMER, NOT RESET
+      // IF ITS NOT RUNNING ONLY STOP THE TIMER, NOT RESET 
     } else {
       clearInterval(intervalRef.current);
       clearInterval(modeIntervalRef.current);
@@ -79,23 +71,21 @@ const Stopwatch = () => {
    *  */ 
   useEffect(() => {
     if (!logs || logs.length < 1) {
-      const storedSession = JSON.parse(localStorage.getItem('currentSession'));
-      const revivedTimeStamp = storedSession.map(log => ({
+      // Safely retrieve any existing session from localStorage. If nothing is found, default to an empty array.
+      const storedSession = JSON.parse(localStorage.getItem('currentSession')) || [];
+
+      // Only attempt to revive timestamps and update state when we actually have data.
+      if (storedSession.length > 0) {
+        const revivedTimeStamp = storedSession.map(log => ({
           ...log,
           timestamp: new Date(log.timestamp),
         }));
-      setLogs(revivedTimeStamp);
-      return;
-    }
-    localStorage.setItem('currentSession', JSON.stringify(logs));
-  }, [mode]);
-
-  // useEffect(() => {
-  //   if (sessionName.trim()) {
-  //     handleEndSession()
-  //   }
-  // }, [sessionName])
-
+        setLogs(revivedTimeStamp);
+      }
+        return;
+      }
+      localStorage.setItem('currentSession', JSON.stringify(logs));
+    }, [mode]);
 
   /**
    * SETS START AND STOP BUTTON
@@ -109,25 +99,31 @@ const Stopwatch = () => {
    **/ 
   const handleReset = () => {
     setIsRunning(false);
-    setTime(0);
+    const totalLogsTime = logs.reduce((sum, log) => sum + log.timeMS, 0);
+    setTime(totalLogsTime);
     setWorkTime(0);
     setRestTime(0);
-    setLogs([]);
-    setMode('work');
   };
 
 
-
-  const handleEndSession = () => {
-    console.log("sessiona name:", sessionName || "nothing") /*********** */
-    createStopwatchSession(sessionName, logs);
+  /**
+   * HANDLES END SESSION BUTTON LOGIC
+   * @param {string} type 
+   * @param {string} value 
+   */
+  const handleEndSession = (type, value) => {
+    if (type === 'saveDeepwork') {
+      createDeepworkSession(value?.trim() || 'Untitled', logs);
+    }
+    setLogs([]);
+    localStorage.setItem('currentSession', JSON.stringify([])); 
     handleReset();
     setOpenDialogBox(false);
-    dispatch({ type: 'GET_CURRENT_SESSION', payload: false})
-    localStorage.setItem('currentSession', JSON.stringify([])); 
-    logout();
   };
 
+  /**
+   * HANDLES RETURN BUTTON LOGIC
+   */
   const handleReturn = () => {
     setIsRunning(false);
     if (mode === 'work'){
@@ -161,10 +157,13 @@ const Stopwatch = () => {
         })
       }
     }
-
-    
   };
 
+  /**
+   * SAVES THE CURRENT DEEPWORK LOGS BEFORE SWITCHING MODE
+   * @param {string} newMode 
+   * @returns 
+   */
   const toggleMode = (newMode) => {
     if (newMode === mode) return; // Prevent toggling to the same mode
 
@@ -188,7 +187,12 @@ const Stopwatch = () => {
     setIsRunning(true);
   };
 
-  // Format time to display as hh:mm:ss.ms
+
+  /**
+   * FORMAT TIME TO SHOW AS hh:mm:ss.ms
+   * @param {number} timeInMs 
+   * @returns 
+   */
   const formatTime = (timeInMs = time) => {
     const hours = Math.floor(timeInMs / 3600000);
     const minutes = Math.floor((timeInMs % 3600000) / 60000);      
@@ -198,27 +202,13 @@ const Stopwatch = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(1, '0')}`;
   };
 
-  // Get the active time based on current mode
+  /**
+   * GET MAIN ACTIVE STOPWATCH TIME BASED ON CURRENT MODE
+   * @returns 
+   */
   const getActiveTime = () => {
     return mode === 'work' ? formatTime(workTime) : formatTime(restTime);
   };
-
-  /**
-   * RESETS THE SESSION DATA ON THE LOCAL STORAGE
-   */
-  const handleDontSaveSession = () => {
-    localStorage.setItem('currentSession', JSON.stringify([])); 
-    setOpenDialogBox(false);
-    handleReset();
-    logout();
-  }
-
-  const handleCancel = () => {
-    setOpenDialogBox(false);
-    dispatch({ type: 'GET_CURRENT_SESSION', payload: false})
-  }
-
-  console.log("stopwtch", isCurrentSession);
 
   return (
     <>
@@ -355,14 +345,15 @@ const Stopwatch = () => {
           </div>
         </div>
       </div>
-      {(openDialogBox || isCurrentSession) && (
-        <InputDialogBox 
-          isOpen={openDialogBox || isCurrentSession}
+      {openDialogBox && (
+        <DialogBox 
+          isOpen={openDialogBox}
           title={'Are you sure you want to end the current session?'}
           message={'Your current data will be saved, but the session will restart Please enter your session name'}
-          onCancel={handleCancel}
-          onDontSave={handleDontSaveSession}
-          onSave={(value) => handleEndSession(value || "untitled")}
+          onCancel={() => setOpenDialogBox(false)}
+          onDontSave={() => handleEndSession('dontSaveDeepwork')}
+          onConfirm={(inputValue) => handleEndSession('saveDeepwork', inputValue)}
+          type='handleDeepworkSession'
         />
       )}
     </>

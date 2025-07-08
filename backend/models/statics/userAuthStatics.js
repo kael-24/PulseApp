@@ -9,7 +9,7 @@ module.exports = function userAuthStatics(schema) {
      * @param {string} password 
      * @returns NEWLY CREATE USER DOCUMENT
      */
-    schema.statics.signup = async function(name, email, password) {
+    schema.statics.signupModel = async function(name, email, password) {
         // VALIDATES EXISTING EMAIL
         const existingUser = await this.findOne({ email });
         if (existingUser) {
@@ -32,13 +32,13 @@ module.exports = function userAuthStatics(schema) {
      * @param {string} password 
      * @returns EXISTING USER
      */
-    schema.statics.login = async function(email, password) {
+    schema.statics.loginModel = async function(email, password) {
         // VERIFY EXISTING USER
         const user = await this.findOne({ email });
         if (!user) {
             throw Error('User does not exists');
         }
-
+        
         // VERIFY PASSWORD
         const match = await bcrypt.compare(password, user.password);
         if (!match){

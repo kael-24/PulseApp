@@ -1,8 +1,8 @@
-import { useStopwatchContext } from "../hooks/useStopwatchContext"
+import { useDeepworkContext } from "../hooks/useDeepworkContext"
 import { formatDuration, intervalToDuration, format } from 'date-fns';
 
 const SessionDetails = () => {
-    const { session } = useStopwatchContext();
+    const { deepworkSession } = useDeepworkContext();
     
     const formatTime = (ms) => {
         const duration = intervalToDuration({ start: 0, end: ms });
@@ -15,12 +15,12 @@ const SessionDetails = () => {
 
     return(
         <div className="flex flex-col max-w-md mx-auto justify-center p-4 border border-black">
-            Session Details
-            {session && session.session && session.session.map((sessionDetails, index) => (
+            Deepwork Session Details
+            {deepworkSession && deepworkSession.deepwork && deepworkSession.deepwork.map((logDetails, index) => (
                 <div className="border border-black" key={index}>
-                    <div>Mode: {sessionDetails.mode}</div>
-                    <div>Duration: {formatTime(sessionDetails.timeMS)}</div>
-                    <div>Date: {formatDate(sessionDetails.timestamp)}</div>
+                    <div>Mode: {logDetails.mode}</div>
+                    <div>Duration: {formatTime(logDetails.timeMS)}</div>
+                    <div>Date: {formatDate(logDetails.timestamp)}</div>
                 </div>
             ))}
         </div>

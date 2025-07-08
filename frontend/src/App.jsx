@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from './hooks/useAuthContext';
-import { useStopwatchContext } from './hooks/useStopwatchContext'
+import { useDeepworkContext } from './hooks/useDeepworkContext'
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Home from './pages/Home';
@@ -12,9 +12,9 @@ import SessionDetails from './pages/SessionDetails';
 
 function App() {
   const { user, userLoading } = useAuthContext();
-  const { session, stopwatchLoading } = useStopwatchContext();
+  const { deepworkSession, deepworkLoading } = useDeepworkContext();
 
-  if (userLoading || stopwatchLoading) {
+  if (userLoading || deepworkLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
         <CircularProgress color="primary" />
@@ -47,7 +47,7 @@ function App() {
         />
         <Route
           path="/session-details"
-          element={user && session && session.session && session.session.length ? <SessionDetails /> : <Navigate to='/' />}
+          element={user && deepworkSession && deepworkSession.deepwork && deepworkSession.deepwork.length ? <SessionDetails /> : <Navigate to='/' />}
         />
       </Routes>
     </BrowserRouter>

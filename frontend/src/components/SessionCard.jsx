@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
 import { formatDuration, intervalToDuration, format } from 'date-fns';
 import { useNavigate } from 'react-router-dom'
-import { useStopwatchContext } from "../hooks/useStopwatchContext";
-import { useStopwatch } from "../hooks/useStopwatch";
+import { useDeepworkContext } from "../hooks/useDeepworkContext";
+import { useDeepwork } from "../hooks/useDeepwork";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 
-const SessionCard = ({ session, sessionWorkloads }) => {
+const SessionCard = ({ deepworkSession, deepworkLogs }) => {
     const [totalTime, setTotalTime] = useState(0);
     const [totalWorkTime, setTotalWorkTime] = useState(0);
     const [totalRestTime, setTotalRestTime] = useState(0);
     const [nameOnEdit, setNameOnEdit] = useState(false);
-    const [newSessionName, setNewSessionName] = useState('');
+    const [newDeepworkName, setNewDeepworkName] = useState('');
     
-    const { dispatch } = useStopwatchContext();  
-    const { getStopwatch, updateStopwatch, deleteStopwatch } = useStopwatch();
+    const { dispatch } = useDeepworkContext();  
+    const { getDeepwork, updateDeepwork, deleteDeepwork } = useDeepwork();
 
     const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ const SessionCard = ({ session, sessionWorkloads }) => {
         setTotalTime(0);
         setTotalWorkTime(0);
         setTotalRestTime(0);
-        sessionWorkloads.forEach((individualMode) => {
+        deepworkLogs.forEach((individualMode) => {
             setTotalTime(prevTotalTime => prevTotalTime + individualMode.timeMS);
             
             if(individualMode.mode === 'work'){
@@ -35,27 +35,42 @@ const SessionCard = ({ session, sessionWorkloads }) => {
                 setTotalRestTime(prevTime => prevTime + individualMode.timeMS);
             }
         })
-    }, [sessionWorkloads]);
+    }, [deepworkLogs]);
 
     // REDIRECTS TO SESSION DETAILS PAGE
     const handleSessionDetails = () => {
-        dispatch({ type: 'GET_SESSION', payload: session })
+        dispatch({ type: 'GET_SESSION', payload: deepworkSession })
         navigate('/session-details');
     }
 
     // DELETE SESSION
     const deleteSession = async (e) => {
         e.stopPropagation();
-        await deleteStopwatch(session._id);
-        await getStopwatch();
+        await deleteDeepwork(deepworkSession._id);
+        await getDeepwork();
     }
 
-    // TODO UNFINISHED FUNCTION
     // EDIT SESSION NAME 
     const editSessionName = async (e) => {
+        if (!newDeepworkName?.trim()) {
+            setNewDeepworkName('Untitled');
+        }
         e.stopPropagation();
-        await updateStopwatch(session._id, newSessionName);
+        await updateDeepwork(deepworkSession._id, newDeepworkName);
         setNameOnEdit(false);
+    }
+
+    // HANDLE CLOSE ICON
+    const handleCloseIcon = () => {
+        setNameOnEdit(false); 
+        setNewDeepworkName("");
+    }
+
+    // HANDLE EDIT ICON
+    const handleEditIcon = (e) => {
+        e.stopPropagation(); 
+        setNameOnEdit(true); 
+        setNewDeepworkName("");
     }
 
     const formatTime = (ms) => {
@@ -76,15 +91,15 @@ const SessionCard = ({ session, sessionWorkloads }) => {
                     <input
                         type='text'
                         className=""
-                        value={newSessionName}
-                        onChange={(e) => setNewSessionName(e.target.value)}
+                        value={newDeepworkName}
+                        onChange={(e) => setNewDeepworkName(e.target.value)}
                     />
             ) : (
-                <h3>{session.sessionName}</h3>
+                <h3>{newDeepworkName?.trim() || deepworkSession.deepworkName}</h3>
             )}
             
             <p>Lasted for: {formatTime(totalTime)}</p>
-            <p>Date: {formatDate(session.createdAt)}</p>
+            <p>Date: {formatDate(deepworkSession.createdAt)}</p>
             <p>Total Work Time: {formatTime(totalWorkTime)}</p>
             <p>Total Rest Time: {formatTime(totalRestTime)}</p>
             
@@ -93,14 +108,14 @@ const SessionCard = ({ session, sessionWorkloads }) => {
                     <button onClick={editSessionName}>
                         <CheckIcon />
                     </button>
-                    <button onClick={() => setNameOnEdit(false)}>
+                    <button onClick={handleCloseIcon}>
                         <CloseIcon />
                     </button>
                 </div>
                 
             ) : (
                 <div>  
-                    <button onClick={(e) => {setNameOnEdit(true); e.stopPropagation()}}>
+                    <button onClick={handleEditIcon}>
                         <EditIcon />    
                     </button>
                     <button onClick={deleteSession}>

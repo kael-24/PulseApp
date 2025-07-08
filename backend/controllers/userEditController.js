@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Deepwork = require('../models/deepworkModel');
 const jwt = require('jsonwebtoken');
 const {nameValidator, passwordValidator} = require('./inputValidator');
 
@@ -31,12 +32,12 @@ const userEdit = async (req, res) => {
         } else if (currentPassword && !newPassword) {
             throw Error('New password is required');
         } else if (currentPassword && newPassword) {
-            passwordValidator({ password: currentPassword, checkIfEnough: true, checkIfStrong: true });
+            passwordValidator({ password: currentPassword });
             passwordValidator({ password: newPassword, checkIfEnough: true, checkIfStrong: true });
         }
 
         // PERFORM UPDATE VIA MODEL
-        const user = await User.userEdit(userId, name, currentPassword, newPassword);
+        const user = await User.userEditModel(userId, name, currentPassword, newPassword);
         
         // CREATE NEW TOKEN
         const token = createToken(user._id);
@@ -63,7 +64,8 @@ const userDelete = async (req, res) => {
     try {
         passwordValidator({ password, isRequired: true });
 
-        await User.deleteUser(userId, password);
+        await User.deleteUserModel(userId, password);
+        await Deepwork.deleteAllDeepworksModel(userId);
         res.status(200).json({ message: "Account successfully deleted" });
     } catch (error) {  
         res.status(400).json({ error: error.message });

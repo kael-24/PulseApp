@@ -13,7 +13,7 @@ const createToken = (_id) => {
 }
 
 /**
- * User signup controller
+ * User signup controllera
  * Creates a new user account
  */
 const userSignup = async (req, res) => {
@@ -26,7 +26,7 @@ const userSignup = async (req, res) => {
 
         const normalizedEmail = email.toLowerCase();
 
-        const user = await User.signup(name, normalizedEmail, password);
+        const user = await User.signupModel(name, normalizedEmail, password);
         const token = createToken(user._id);
         res.status(200).json({ name, email: normalizedEmail, token });
     } catch (error) {
@@ -47,7 +47,7 @@ const userLogin = async (req, res) => {
 
         const normalizedEmail = email.toLowerCase();
 
-        const user = await User.login(normalizedEmail, password);
+        const user = await User.loginModel(normalizedEmail, password);
         const token = createToken(user._id);
         res.status(200).json({ name: user.name, email: normalizedEmail, token });
     } catch (error) {

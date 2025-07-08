@@ -1,5 +1,5 @@
 import Navbar from '../components/Navbar'
-import Stopwatch from '../components/Stopwatch';
+import Stopwatch from './Stopwatch';
 
 const Home = () => {
 

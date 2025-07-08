@@ -29,7 +29,7 @@ const useDeleteUser = () => {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${user.token}`
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ password })
             });
 
             const json = await response.json();
