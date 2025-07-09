@@ -104,17 +104,13 @@ const Stopwatch = () => {
     setRestTime(0);
     setTime(0)
     setLogs([]);
+    setMode('work');
         setOpenDialogBox(false);
     if (type === 'saveDeepwork') {
       createDeepworkSession(value?.trim() || 'Untitled', logs);
     }
     localStorage.setItem('currentSession', JSON.stringify([])); 
   };
-
-  /**
-   * HANDLES RETURN BUTTON LOGIC
-   */
-  console.log('workTime:', workTime, 'restTime', restTime, 'totalTime', time);
 
   const handleReturn = () => {
     setIsRunning(false);
