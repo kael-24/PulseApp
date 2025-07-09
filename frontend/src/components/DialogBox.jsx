@@ -53,7 +53,7 @@ const DialogBox = ({ isOpen, title, message, onCancel, onDontSave, onConfirm, ty
                 </button>
                 {type === 'handleDeepworkSession' && (
                     <button 
-                        className="" // TODO
+                        className="px-5 py-2 bg-slate-700/80 text-red-400 rounded-xl hover:bg-slate-600 transition-colors font-medium"
                         onClick={onDontSave}
                     >
                         Don't Save

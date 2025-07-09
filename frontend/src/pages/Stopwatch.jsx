@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { 
   PlayArrow,
   Pause,
-  Refresh,
   ArrowBack,
   KeyboardArrowUp,
   KeyboardArrowDown,
@@ -29,10 +28,10 @@ const Stopwatch = () => {
   const intervalRef = useRef(null);
   const modeIntervalRef = useRef(null);
 
-  useEffect(() => {
-    const totalLogsTime = logs.reduce((sum, log) => sum + log.timeMS, 0);
-    setTime(totalLogsTime);
-  }, [logs]);
+  // useEffect(() => {
+  //   const totalLogsTime = logs.reduce((sum, log) => sum + log.timeMS, 0);
+  //   setTime(totalLogsTime);
+  // }, [logs]);
 
   /**
    * STOPWATCH TIMER LOGIC
@@ -83,9 +82,9 @@ const Stopwatch = () => {
         setLogs(revivedTimeStamp);
       }
         return;
-      }
-      localStorage.setItem('currentSession', JSON.stringify(logs));
-    }, [mode]);
+    }
+    localStorage.setItem('currentSession', JSON.stringify(logs));
+  }, [mode]);
 
   /**
    * SETS START AND STOP BUTTON
@@ -95,49 +94,49 @@ const Stopwatch = () => {
   };
 
   /**
-   * RESET BUTTON FUNCTIONALITY THAT RESETS EVERYTHING
-   **/ 
-  const handleReset = () => {
-    setIsRunning(false);
-    const totalLogsTime = logs.reduce((sum, log) => sum + log.timeMS, 0);
-    setTime(totalLogsTime);
-    setWorkTime(0);
-    setRestTime(0);
-  };
-
-
-  /**
    * HANDLES END SESSION BUTTON LOGIC
    * @param {string} type 
    * @param {string} value 
    */
   const handleEndSession = (type, value) => {
+    setIsRunning(false);
+    setWorkTime(0);
+    setRestTime(0);
+    setTime(0)
+    setLogs([]);
+        setOpenDialogBox(false);
     if (type === 'saveDeepwork') {
       createDeepworkSession(value?.trim() || 'Untitled', logs);
     }
-    setLogs([]);
     localStorage.setItem('currentSession', JSON.stringify([])); 
-    handleReset();
-    setOpenDialogBox(false);
   };
 
   /**
    * HANDLES RETURN BUTTON LOGIC
    */
+  console.log('workTime:', workTime, 'restTime', restTime, 'totalTime', time);
+
   const handleReturn = () => {
     setIsRunning(false);
+    // const totalLogsTime = logs.reduce((sum, log) => sum + log.timeMS, 0);
+
     if (mode === 'work'){
       if (workTime >= 5000 || workTime < 5000 && logs.length === 0) {
         setTime(prevTime => prevTime - workTime)
         setWorkTime(0);
       } else if (workTime < 5000) {  
-        setTime(prevTime => prevTime - workTime);
-        const prevRestime = logs[logs.length -1].timeMS
+        setTime(prevTime => prevTime - workTime)
+        const prevRestime = logs[logs.length - 1].timeMS
         setMode('rest');
         setRestTime(prevRestime);
+        setWorkTime(0);
         setLogs(prevLogs => {
           const updated = [...prevLogs]
           updated.pop();
+          if (updated.length < 1) {
+            localStorage.setItem('currentSession', JSON.stringify([]));
+          }
+          console.log('party poop[ers', updated)
           return updated;
         })
       }
@@ -146,13 +145,19 @@ const Stopwatch = () => {
         setTime(prevTime => prevTime - restTime)
         setRestTime(0);
       } else if (restTime < 5000) {
-        setTime(prevTime => prevTime - restTime);
         const prevWorkTime = logs[logs.length -1].timeMS
+        setTime(prevTime => prevTime - restTime);
+        console.log(time);
         setMode('work');
         setWorkTime(prevWorkTime);
+        setRestTime(0);
         setLogs(prevLogs => {
           const updated = [...prevLogs]
           updated.pop();
+          console.log('party poop[ers', updated)
+          if (updated.length < 1) {
+            localStorage.setItem('currentSession', JSON.stringify([]));
+          }
           return updated;
         })
       }
@@ -218,11 +223,6 @@ const Stopwatch = () => {
             {/* Small Total Time */}
             <div className="font-mono text-blue-300/70 text-sm mb-2 font-medium">
               Total: {formatTime()}
-              <button className="font-mono text-blue-300/70 text-sm mb-2 font-medium">
-                  <Link to='session-history'>
-                    <History />
-                  </Link>
-              </button>
             </div>
 
           
@@ -240,11 +240,12 @@ const Stopwatch = () => {
             {/* Controls */}
             <div className="flex justify-center gap-6 mb-6">
               <button 
-                onClick={handleReset}
                 className="bg-slate-700/50 hover:bg-slate-600/50 text-blue-300 p-3 rounded-full backdrop-blur-md transition-all"
-                aria-label="Reset"
+                aria-label="Session History"
               >
-                <Refresh className="w-8 h-8" />
+                <Link to='session-history'>
+                  <History className="w-8 h-8" />
+                </Link>
               </button>
               
               <button 

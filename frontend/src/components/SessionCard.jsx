@@ -8,6 +8,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import WorkIcon from '@mui/icons-material/Work';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
 
 const SessionCard = ({ deepworkSession, deepworkLogs }) => {
     const [totalTime, setTotalTime] = useState(0);
@@ -79,51 +83,83 @@ const SessionCard = ({ deepworkSession, deepworkLogs }) => {
     }
 
     const formatDate = (sessionDateStart) => {
-        return format(new Date(sessionDateStart), 'MMMM d, yyyy');
+        return format(new Date(sessionDateStart), 'PPPP');
     }
 
     return(
         <div 
-            className="p-4 border border-black"
+            className="bg-slate-800/90 backdrop-blur-sm shadow-md rounded-xl p-5 border border-blue-700/30 mb-4 hover:bg-slate-700/80 transition duration-300 cursor-pointer"
             onClick={() => {if (!nameOnEdit) handleSessionDetails()}}
         >
-            {nameOnEdit ? (
+            <div className="flex justify-between items-center mb-3">
+                {nameOnEdit ? (
                     <input
                         type='text'
-                        className=""
+                        className="w-full px-3 py-1 bg-slate-700/80 text-white border border-blue-600/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/70 transition"
                         value={newDeepworkName}
                         onChange={(e) => setNewDeepworkName(e.target.value)}
+                        placeholder={deepworkSession.deepworkName}
                     />
-            ) : (
-                <h3>{newDeepworkName?.trim() || deepworkSession.deepworkName}</h3>
-            )}
+                ) : (
+                    <h3 className="text-xl font-semibold text-blue-300">{newDeepworkName?.trim() || deepworkSession.deepworkName}</h3>
+                )}
+                
+                <div className="flex space-x-1">
+                    {nameOnEdit ? (
+                        <>
+                            <button 
+                                onClick={editSessionName}
+                                className="p-1 text-teal-400 hover:text-teal-300 transition"
+                            >
+                                <CheckIcon fontSize="small" />
+                            </button>
+                            <button 
+                                onClick={handleCloseIcon}
+                                className="p-1 text-red-400 hover:text-red-300 transition"
+                            >
+                                <CloseIcon fontSize="small" />
+                            </button>
+                        </>
+                    ) : (
+                        <>  
+                            <button 
+                                onClick={handleEditIcon}
+                                className="p-1 text-blue-400 hover:text-blue-300 transition"
+                            >
+                                <EditIcon fontSize="small" />
+                            </button>
+                            <button 
+                                onClick={deleteSession}
+                                className="p-1 text-red-400 hover:text-red-300 transition"
+                            >
+                                <DeleteIcon fontSize="small" />
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
             
-            <p>Lasted for: {formatTime(totalTime)}</p>
-            <p>Date: {formatDate(deepworkSession.createdAt)}</p>
-            <p>Total Work Time: {formatTime(totalWorkTime)}</p>
-            <p>Total Rest Time: {formatTime(totalRestTime)}</p>
-            
-            {nameOnEdit ? (
-                <div>
-                    <button onClick={editSessionName}>
-                        <CheckIcon />
-                    </button>
-                    <button onClick={handleCloseIcon}>
-                        <CloseIcon />
-                    </button>
+            <div className="space-y-2 text-slate-300 text-sm">
+                <div className="flex items-center">
+                    <AccessTimeIcon className="mr-2 text-teal-400" fontSize="small" />
+                    <span>Duration: <span className="font-medium text-white">{formatTime(totalTime)}</span></span>
                 </div>
                 
-            ) : (
-                <div>  
-                    <button onClick={handleEditIcon}>
-                        <EditIcon />    
-                    </button>
-                    <button onClick={deleteSession}>
-                        <DeleteIcon />
-                    </button>
+                <div className="flex items-center">
+                    <CalendarTodayIcon className="mr-2 text-blue-400" fontSize="small" />
+                    <span>Date: <span className="font-medium text-white">{formatDate(deepworkSession.createdAt)}</span></span>
                 </div>
-            )}
-
+                
+                <div className="flex items-center">
+                    <WorkIcon className="mr-2 text-amber-400" fontSize="small" />
+                    <span>Work time: <span className="font-medium text-white">{formatTime(totalWorkTime)}</span></span>
+                </div>
+                
+                <div className="flex items-center">
+                    <SelfImprovementIcon className="mr-2 text-purple-400" fontSize="small" />
+                    <span>Rest time: <span className="font-medium text-white">{formatTime(totalRestTime)}</span></span>
+                </div>
+            </div>
         </div>
     );
 }
