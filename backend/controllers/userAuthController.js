@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Alarm = require('../models/schemas/alarmSchema');
 const jwt = require('jsonwebtoken');
 const {nameValidator, emailValidator, passwordValidator} = require('./inputValidator');
 
@@ -26,7 +27,12 @@ const userSignup = async (req, res) => {
 
         const normalizedEmail = email.toLowerCase();
 
+        // CREATE NEW USER TO THE USER COLLECTION
         const user = await User.signupModel(name, normalizedEmail, password);
+
+        // CREATE NEW ALARM TO THE ALARM COLLECTION
+        await Alarm.createAlarmTimerModel(user._id);
+
         const token = createToken(user._id);
         res.status(200).json({ name, email: normalizedEmail, token });
     } catch (error) {

@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const userRoutes = require('./routes/userRoutes');
 const deepworkRoutes =  require('./routes/deepworkRoutes')
+const alarmTimerRoutes = require('./routes/alarmTimerRoutes');
 
 // CREATES VARIABLE FOR EXPRESS
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 // MAIN ROUTES
 app.use('/api/users', userRoutes);
 app.use('/api/deepwork', deepworkRoutes);
+app.use('/api/alarmTimer', alarmTimerRoutes);
 
 
 // DATABASE AND PORT CONNECTION
