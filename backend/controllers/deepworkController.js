@@ -72,4 +72,8 @@ const updateDeepwork = async (req, res) => {
     }
 }
 
-module.exports = { getDeepworks, createDeepwork, deleteDeepwork, updateDeepwork }
+module.exports = {  getDeepworks, 
+                    createDeepwork, 
+                    deleteDeepwork, 
+                    updateDeepwork, 
+                }

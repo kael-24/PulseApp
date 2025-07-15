@@ -115,4 +115,22 @@ alarmSchema.statics.deleteAlarmModel = async function (userId) {
     return deletedAlarm
 }
 
+alarmSchema.statics.downloadAlarmModel = async function (userId) {
+    if (!mongoose.Types.ObjectId.isValid(userId))
+        throw new Error('Invalid User ID');
+
+    const alarm = await this.findOne({ userId }).lean();
+    if (!alarm)
+        throw new Error('Alarm does not exists');
+
+    const alarmDetails = {
+        "Work Alarm Enabled": alarm.isWorkAlarmEnabled ? 'Yes' : 'No',
+        "Rest Alarm Enabled": alarm.isRestAlarmEnabled ? 'Yes' : 'no',
+        "Timer for work": alarm.alarmWorkTime,
+        "Timer for rest": alarm.alarmRestTime
+    }
+
+    return alarmDetails;
+}
+
 module.exports = mongoose.model('Alarm', alarmSchema)

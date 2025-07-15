@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { findById } = require('../userModel');
 
 module.exports = function deepworkStatics (schema) {
     /**
@@ -124,6 +123,24 @@ module.exports = function deepworkStatics (schema) {
         }
 
         return updatedDeepwork;
+    }
+
+    schema.statics.downloadDeepworksModel = async function(userId) {
+        if (!mongoose.Types.ObjectId.isValid(userId))
+            throw Error('Invalid User ID');
+
+        const deepwork = await this.findOne({ userId }).lean();
+        if (!deepwork)
+            throw Error('No existing deepwork');
+
+        const deepworkSession =  deepwork.deepwork.map(log => ({
+            "Deepwork Name": deepwork.deepworkName,
+            "Creation Date": deepwork.createdAt,
+            "Log Mode": log.mode,
+            "Log Duration": log.formattedTime,
+        }))
+
+        return deepworkSession;
     }
 
 }

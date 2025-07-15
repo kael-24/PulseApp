@@ -79,4 +79,21 @@ module.exports = function userEditStatics (schema) {
         await user.deleteOne();
         return user;
     }
+
+    schema.statics.downloadUserModel = async function(userId) {
+        if (!mongoose.Types.ObjectId.isValid(userId))
+            throw new Error('Invalid User ID');
+
+        const user = await this.findById(userId).lean();
+        if (!user)
+            throw new Error('User does not exists');
+
+        const userDetails = {
+            "Name": user.name,
+            "Email": user.email,
+            "Creation Date": user.createdAt
+        }
+
+        return userDetails;
+    }
 }
