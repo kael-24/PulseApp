@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuthContext } from "../hooks/useAuthContext";
-import useEditUser from "../hooks/useEditUser";
-import useDeleteUser from "../hooks/useDeleteUser";
+import { useAuthContext } from "../hooks/contextHook/useAuthContext";
+import useEditUser from "../hooks/userHook/useEditUser";
+import useDeleteUser from "../hooks/userHook/useDeleteUser";
 import EditNameField from "../components/ProfileSettings/editNameField";
 import EditPasswordField from "../components/ProfileSettings/editPasswordField";
 import DeleteUserField from "../components/ProfileSettings/deleteUserField";

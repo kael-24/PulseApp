@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuthContext } from "./useAuthContext";
+import { useAuthContext } from "../contextHook/useAuthContext";
 
 /**
  * Hook for handling user profile editing functionality

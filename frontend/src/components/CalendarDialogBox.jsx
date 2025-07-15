@@ -32,23 +32,25 @@ const CalendarDialogBox = ({ setDateValues }) => {
                     </button>
                 </div>
                 
-                <div className="flex items-center justify-between space-x-2">
-                    <div className="flex-1 space-y-1">
-                        <label className="block text-sm text-blue-300 font-medium">Start Date</label>
-                        <CustomDatePicker 
-                            setDateValue={(value) => setStartDateValue(value)}
-                        />
-                    </div>
-                    
-                    <div className="flex items-center justify-center px-1">
-                        <ArrowForwardIcon className="text-blue-400" />
-                    </div>
-                    
-                    <div className="flex-1 space-y-1">
-                        <label className="block text-sm text-blue-300 font-medium">End Date</label>
-                        <CustomDatePicker 
-                            setDateValue={(value) => setEndDateValue(value)}
-                        />
+                <div className="flex flex-col space-y-4">
+                    <div className="flex items-end space-x-2">
+                        <div className="flex-1">
+                            <label className="block text-sm text-blue-300 font-medium mb-1">Start Date</label>
+                            <CustomDatePicker 
+                                setDateValue={(value) => setStartDateValue(value)}
+                            />
+                        </div>
+                        
+                        <div className="flex items-center justify-center px-2 mb-2">
+                            <ArrowForwardIcon className="text-blue-400" />
+                        </div>
+                        
+                        <div className="flex-1">
+                            <label className="block text-sm text-blue-300 font-medium mb-1">End Date</label>
+                            <CustomDatePicker 
+                                setDateValue={(value) => setEndDateValue(value)}
+                            />
+                        </div>
                     </div>
                 </div>
 

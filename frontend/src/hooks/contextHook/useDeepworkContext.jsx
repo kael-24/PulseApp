@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { DeepworkContext } from "../context/DeepworkContext";
+import { DeepworkContext } from "../../context/DeepworkContext";
 
 export const useDeepworkContext = () => {
     const context = useContext(DeepworkContext);

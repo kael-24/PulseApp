@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useAuthContext } from "./useAuthContext";
+import { useAuthContext } from "../contextHook/useAuthContext";
 
 /**
  * Hook for handling user account deletion functionality

@@ -1,6 +1,5 @@
-import { CrueltyFree } from '@mui/icons-material';
-import { useAuthContext } from './useAuthContext'
-import { useDeepworkContext } from './useDeepworkContext';
+import { useAuthContext } from '../contextHook/useAuthContext'
+import { useDeepworkContext } from '../contextHook/useDeepworkContext';
 
 /**
  * Hook for handling user logout functionality

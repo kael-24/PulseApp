@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuthContext } from "./useAuthContext";
-import { useDeepworkContext } from "../hooks/useDeepworkContext";
+import { useAuthContext } from "./contextHook/useAuthContext";
+import { useDeepworkContext } from "./contextHook/useDeepworkContext";
 
 export const useDeepwork = () => {
     const { user } = useAuthContext();

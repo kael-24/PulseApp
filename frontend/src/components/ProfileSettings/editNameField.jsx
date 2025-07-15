@@ -7,12 +7,12 @@ const EditNameField = ({ userName, onSave, editMode, setEditMode }) => {
     const [name, setName] = useState(userName);
     
         const handleSave = () => {
-        onSave("name", name);
+            onSave("name", name);
         };
     
         const handleCancel = () => {
-        setName(userName);
-        setEditMode('');
+            setName(userName);
+            setEditMode('');
         };
     
         return (

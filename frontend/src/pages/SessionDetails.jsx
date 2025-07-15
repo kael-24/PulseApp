@@ -1,4 +1,4 @@
-import { useDeepworkContext } from "../hooks/useDeepworkContext"
+import { useDeepworkContext } from "../hooks/contextHook/useDeepworkContext"
 import { formatDuration, intervalToDuration, format } from 'date-fns';
 import { Link } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { formatDuration, intervalToDuration, format } from 'date-fns';
 import { useNavigate } from 'react-router-dom'
-import { useDeepworkContext } from "../hooks/useDeepworkContext";
+import { useDeepworkContext } from "../hooks/contextHook/useDeepworkContext";
 import { useDeepwork } from "../hooks/useDeepwork";
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -67,14 +67,13 @@ const SessionCard = ({ deepworkSession, deepworkLogs }) => {
     // HANDLE CLOSE ICON
     const handleCloseIcon = () => {
         setNameOnEdit(false); 
-        setNewDeepworkName("");
     }
 
     // HANDLE EDIT ICON
     const handleEditIcon = (e) => {
         e.stopPropagation(); 
         setNameOnEdit(true); 
-        setNewDeepworkName("");
+        setNewDeepworkName(deepworkSession.deepworkName);
     }
 
     const formatTime = (ms) => {

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthContext } from './hooks/useAuthContext';
-import { useDeepworkContext } from './hooks/useDeepworkContext'
+import { useAuthContext } from './hooks/contextHook/useAuthContext';
+import { useDeepworkContext } from './hooks/contextHook/useDeepworkContext'
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Home from './pages/Home';

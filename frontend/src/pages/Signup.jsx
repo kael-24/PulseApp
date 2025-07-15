@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSignup } from "../hooks/useSignup";
+import { useSignup } from "../hooks/userHook/useSignup";
 import { Link } from 'react-router-dom';
 import { authBody, formContainer, label, input, btn } from "../styles/classNames";
 

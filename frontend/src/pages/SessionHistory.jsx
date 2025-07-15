@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import CalendarDialogBox from '../components/CalendarDialogBox';
 import { useEffect, useState } from "react";
 import { useDeepwork } from "../hooks/useDeepwork";
-import { useAuthContext } from "../hooks/useAuthContext";
-import { useDeepworkContext } from "../hooks/useDeepworkContext";
+import { useAuthContext } from "../hooks/contextHook/useAuthContext";
+import { useDeepworkContext } from "../hooks/contextHook/useDeepworkContext";
 
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
@@ -66,9 +66,9 @@ const SessionHistory = () => {
     }
 
     const handleDeepworksTotalTime = (type) => {
-        const totalWorkTime = sortedDeepworkSession.reduce((sum, session) => {
+        const totalWorkTime = sortedDeepworkSession?.reduce((sum, session) => {
 
-            const totalDeepworkTime = session.deepwork.reduce((innersum, log) => {
+            const totalDeepworkTime = session?.deepwork?.reduce((innersum, log) => {
                 if (type === 'overallTotal') {
                     return innersum + log.timeMS;
                 } else if (type === 'work') {
@@ -204,7 +204,7 @@ const SessionHistory = () => {
                                     <QueryStatsIcon className="mr-2 text-teal-400" />
                                     <span className="text-slate-300">Total Sessions</span>
                                 </div>
-                                <span className="font-semibold text-white">{sortedDeepworkSession.length}</span>
+                                <span className="font-semibold text-white">{sortedDeepworkSession?.length}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
