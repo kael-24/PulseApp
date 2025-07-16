@@ -20,6 +20,8 @@ export const useLogout = () => {
         // Update auth context
         dispatch({ type: 'LOGOUT' });
 
+        
+
         // CLEAR GLOBAL STATE
         deepworkDispatch({ type: 'GET_SESSIONS', payload: null });
     };

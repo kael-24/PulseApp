@@ -12,8 +12,6 @@ const TimerDialogBox = ({ onClose }) => {
     const { updateAlarmTimer, success } = useAlarmTimer();
     const { isWorkAlarmEnabled, isRestAlarmEnabled, alarmWorkTime, alarmRestTime}  = useAlarmContext();
 
-    /* removed unused refs and timers */
-
     const [workHours, setWorkHours] = useState('0');
     const [workMinutes, setWorkMinutes] = useState('0');
     const [workSeconds, setWorkSeconds] = useState('0');

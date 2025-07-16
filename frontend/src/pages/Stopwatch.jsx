@@ -47,9 +47,9 @@ const Stopwatch = () => {
     };
   }, []);
 
-  useEffect(() => {
-      setWorkTimeAlarm(alarmWorkTime);
-      setRestTimeAlarm(alarmRestTime);
+  useEffect(() => {    
+    setWorkTimeAlarm(alarmWorkTime);
+    setRestTimeAlarm(alarmRestTime);
   }, [alarmWorkTime, alarmRestTime, isWorkAlarmEnabled, isRestAlarmEnabled])
 
   /**
@@ -114,16 +114,18 @@ const Stopwatch = () => {
     if (!logs || logs.length < 1) {
       // Safely retrieve any existing session from localStorage. If nothing is found, default to an empty array.
       const storedSession = JSON.parse(localStorage.getItem('currentSession')) || [];
-
+      
       // Only attempt to revive timestamps and update state when we actually have data.
       if (storedSession.length > 0) {
         const revivedTimeStamp = storedSession.map(log => ({
           ...log,
           timestamp: new Date(log.timestamp),
         }));
+        // console.log(logs.log[0].timeMS);
         setLogs(revivedTimeStamp);
+        setTime(revivedTimeStamp.reduce((sum, log) => sum + log.timeMS, 0))
       }
-        return;
+      return;
     }
     localStorage.setItem('currentSession', JSON.stringify(logs));
   }, [mode]);
@@ -132,8 +134,10 @@ const Stopwatch = () => {
   useEffect(() => {
     if (!audio.current) return;
 
-    if ((workTimeAlarm <= 0 && mode === 'work' && isWorkAlarmEnabled) || 
-        (restTimeAlarm <= 0 && mode === 'rest' && isRestAlarmEnabled)) {
+    if (alarmWorkTime <= 0 || alarmRestTime <= 0) return;
+
+    if (isRunning && ((workTimeAlarm <= 0 && mode === 'work' && isWorkAlarmEnabled) || 
+        (restTimeAlarm <= 0 && mode === 'rest' && isRestAlarmEnabled))) {
         audio.current.loop = true;
         audio.current.play().catch(error => console.error("Audio play failed:", error));
     } else {

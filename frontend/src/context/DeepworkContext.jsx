@@ -22,6 +22,8 @@ export const DeepworkContextProvider = ({ children }) => {
         deepworkLoading: false,
     });
 
+    console.log("Deepwork Context State: ", state);
+
     return (
         <DeepworkContext.Provider value={{ ...state, dispatch }}>
             {children}
