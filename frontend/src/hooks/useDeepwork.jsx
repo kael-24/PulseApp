@@ -10,7 +10,7 @@ export const useDeepwork = () => {
     const getDeepwork = async () => {
         setError(null);
 
-        const response = await fetch('/api/deepwork', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deepwork`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export const useDeepwork = () => {
 
     const updateDeepwork = async (objectId, newName) => {
         setError(null);
-        const response = await fetch('/api/deepwork/' + objectId, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deepwork/${objectId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export const useDeepwork = () => {
     const createDeepworkSession = async (deepworkName, deepwork) => {
         setError(null);
 
-        const response = await fetch('/api/deepwork', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deepwork`, {
             method: 'POST',
             body: JSON.stringify({ deepworkName, deepwork }),
             headers: {
@@ -70,7 +70,7 @@ export const useDeepwork = () => {
     };
 
     const deleteDeepwork = async (objectId) => {
-        const response = await fetch('/api/deepwork/' + objectId, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deepwork/${objectId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",

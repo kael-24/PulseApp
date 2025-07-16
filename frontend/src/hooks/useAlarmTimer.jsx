@@ -23,7 +23,7 @@ const useAlarmTimer = () => {
     const getAlarmTimer = async () => {
         setError(null);
 
-        const response = await fetch('/api/alarmTimer/', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/alarmTimer/`, {
             method: 'GET',
             headers: { 
                 'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ const useAlarmTimer = () => {
         setError(null);
         setSuccess(false);
 
-        const response = await fetch('/api/alarmTimer/' + objectId, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/alarmTimer/${objectId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -62,7 +62,6 @@ const useAlarmTimer = () => {
         } 
 
         dispatch({type: 'SET_ALARM', payload: json})
-        console.log(json)
         setSuccess(true)
         return json;
     }

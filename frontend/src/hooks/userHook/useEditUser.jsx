@@ -56,7 +56,7 @@ const useEditUser = () => {
             }
             
             // Make API call
-            const response = await fetch('/api/users/userEdit', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/userEdit`, {
                 method: "PATCH",
                 headers: { 
                     "Content-Type": "application/json",

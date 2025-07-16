@@ -8,7 +8,7 @@ const useDownloadData = () => {
 
     const getUserDownloadData = async () => {
         try {
-            const response = await fetch('/api/downloadData', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/downloadData`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

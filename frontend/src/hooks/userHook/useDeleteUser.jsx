@@ -23,7 +23,7 @@ const useDeleteUser = () => {
                 throw new Error("Password is required to delete your account");
             }
 
-            const response = await fetch('/api/users/userDelete', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/userDelete`, {
                 method: "DELETE",
                 headers: { 
                     "Content-Type": "application/json",
