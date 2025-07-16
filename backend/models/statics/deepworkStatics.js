@@ -131,7 +131,7 @@ module.exports = function deepworkStatics (schema) {
 
         const deepwork = await this.findOne({ userId }).lean();
         if (!deepwork)
-            throw Error('No existing deepwork');
+            return [];
 
         const deepworkSession =  deepwork.deepwork.map(log => ({
             "Deepwork Name": deepwork.deepworkName,

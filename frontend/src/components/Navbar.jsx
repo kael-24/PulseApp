@@ -33,7 +33,7 @@ const Navbar = () => {
     };
     
     const handleLogout = () => {
-        if (localStorage.getItem('currentSession')?.length > 0) {
+        if (JSON.parse(localStorage.getItem('currentSession'))?.length > 0) {
             setOpenLogoutDialogBox(true);
             return;
         }
