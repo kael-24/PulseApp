@@ -34,6 +34,10 @@ const Stopwatch = () => {
   const modeIntervalRef = useRef(null);
   const alarmIntervalRef = useRef(null);
   const audio = useRef(null);
+  // Timestamp when the current run started. Used to recover elapsed time on remount
+  const startTimestampRef = useRef(null);
+  // Holds the latest snapshot of the stopwatch state so it can be written once on un-mount
+  const savedStateRef = useRef(null);
 
   // Initialize audio object after component mounts
   useEffect(() => {
@@ -47,6 +51,95 @@ const Stopwatch = () => {
     };
   }, []);
 
+  /**
+   * -------------------------------------------------------------
+   * RECOVER STOPWATCH STATE WHEN COMPONENT (RE)MOUNTS
+   * -------------------------------------------------------------
+   */
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('stopwatchState'));
+    if (!saved) return;
+
+    const {
+      mode: savedMode = 'work',
+      workTime: savedWork = 0,
+      restTime: savedRest = 0,
+      time: savedTotal = 0,
+      logs: savedLogs = [],
+      isRunning: savedRunning = false,
+      startTimestamp: savedStartTs = null,
+    } = saved;
+
+    const now = Date.now();
+    let updatedWork = savedWork;
+    let updatedRest = savedRest;
+    let updatedTotal = savedTotal;
+
+    // If it was running when the user left, add the elapsed time since then
+    if (savedRunning && savedStartTs) {
+      const delta = now - savedStartTs;
+      if (savedMode === 'work') {
+        updatedWork += delta;
+      } else {
+        updatedRest += delta;
+      }
+      updatedTotal += delta;
+      startTimestampRef.current = now - delta; // preserve original start offset
+    }
+
+    setMode(savedMode);
+    setWorkTime(updatedWork);
+    setRestTime(updatedRest);
+    setTime(updatedTotal);
+    setLogs(savedLogs);
+    setIsRunning(savedRunning);
+  }, []);
+
+  /**
+   * -------------------------------------------------------------
+   * SAVE STATE SNAPSHOT – store the latest values in a ref on every change
+   * -------------------------------------------------------------
+   */
+  useEffect(() => {
+    savedStateRef.current = {
+      mode,
+      workTime,
+      restTime,
+      time,
+      isRunning,
+      logs,
+      startTimestamp: startTimestampRef.current,
+    };
+  }, [mode, workTime, restTime, time, isRunning, logs, startTimestampRef.current]);
+
+  // Persist to localStorage only once: when the component unmounts
+  useEffect(() => {
+    return () => {
+      savedStateRef.current.startTimestamp = Date.now();
+
+      if (savedStateRef.current) {
+        localStorage.setItem('stopwatchState', JSON.stringify(savedStateRef.current));
+      }
+    };
+  }, []);
+
+
+  // PERSISTS IN BROWSER REFRESH
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const now = Date.now();
+      savedStateRef.current.startTimestamp = now;
+      localStorage.setItem('stopwatchState', JSON.stringify(savedStateRef.current));
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+  
+  
   useEffect(() => {    
     setWorkTimeAlarm(alarmWorkTime);
     setRestTimeAlarm(alarmRestTime);
@@ -189,6 +282,8 @@ const Stopwatch = () => {
       createDeepworkSession(value?.trim() || 'Untitled', logs);
     }
     localStorage.setItem('currentSession', JSON.stringify([])); 
+    // Clear persisted stopwatch state – session is over
+    localStorage.removeItem('stopwatchState');
   };
 
   const handleReturn = () => {
