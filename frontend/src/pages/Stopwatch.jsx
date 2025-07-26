@@ -26,6 +26,10 @@ const Stopwatch = () => {
   const [mode, setMode] = useState('work'); // 'work' or 'rest'
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(true);
+  const [elapsed, setElapsed] = useState(0);
+  // Holds the up-to-date duration of the *active* segment (work/rest) so other
+  // effects can read it synchronously without waiting for state updates.
+  const activeSegmentRef = useRef(0);
 
   const [workTimeAlarm, setWorkTimeAlarm] = useState(0);
   const [restTimeAlarm, setRestTimeAlarm] = useState(0);
@@ -33,6 +37,8 @@ const Stopwatch = () => {
   const intervalRef = useRef(null);
   const modeIntervalRef = useRef(null);
   const alarmIntervalRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const animationFrameRef = useRef(null);
   const audio = useRef(null);
   // Timestamp when the current run started. Used to recover elapsed time on remount
   const startTimestampRef = useRef(null);
@@ -68,6 +74,9 @@ const Stopwatch = () => {
       logs: savedLogs = [],
       isRunning: savedRunning = false,
       startTimestamp: savedStartTs = null,
+      // Persisted elapsed of the in-progress segment. We don't need the
+      // identifier itself so use underscore to avoid linter warning.
+      elapsed: _ = 0
     } = saved;
 
     const now = Date.now();
@@ -91,8 +100,15 @@ const Stopwatch = () => {
     setWorkTime(updatedWork);
     setRestTime(updatedRest);
     setTime(updatedTotal);
+    // Prime the ref with the current active segment so other effects can
+    // compute totals immediately.
+    activeSegmentRef.current = savedMode === 'work' ? updatedWork : updatedRest;
     setLogs(savedLogs);
     setIsRunning(savedRunning);
+    if (savedMode === 'work')
+      setElapsed(updatedWork);
+    else 
+      setElapsed(updatedRest)
   }, []);
 
   /**
@@ -109,8 +125,9 @@ const Stopwatch = () => {
       isRunning,
       logs,
       startTimestamp: startTimestampRef.current,
+      elapsed,
     };
-  }, [mode, workTime, restTime, time, isRunning, logs, startTimestampRef.current]);
+  }, [mode, workTime, restTime, time, isRunning, logs, startTimestampRef.current, elapsed]);
 
   // Persist to localStorage only once: when the component unmounts
   useEffect(() => {
@@ -120,6 +137,8 @@ const Stopwatch = () => {
       if (savedStateRef.current) {
         localStorage.setItem('stopwatchState', JSON.stringify(savedStateRef.current));
       }
+
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
   }, []);
 
@@ -145,6 +164,19 @@ const Stopwatch = () => {
     setRestTimeAlarm(alarmRestTime);
   }, [alarmWorkTime, alarmRestTime, isWorkAlarmEnabled, isRestAlarmEnabled])
 
+  const update = () => {
+    if (startTimeRef.current !== null) {
+      const currentElapsed = Date.now() - startTimeRef.current;
+      setElapsed(currentElapsed);
+      if (mode === 'work')
+        setWorkTime(currentElapsed);
+      else
+        setRestTime(currentElapsed);
+      animationFrameRef.current = requestAnimationFrame(update);
+    }
+  }
+
+
   /**
    * STOPWATCH TIMER LOGIC
    **/ 
@@ -155,16 +187,21 @@ const Stopwatch = () => {
         setTime(prevTime => prevTime + 100);
       }, 100);
       
-      // STOPWATCH TIMER FOR MODE (WORK AND REST)
-      modeIntervalRef.current = setInterval(() => {
-        if (mode === 'work') {
-          setWorkTime(prevTime => prevTime + 100);
-        } else {
-          setRestTime(prevTime => prevTime + 100);
-        }
-      }, 100);
 
-      // STOPWATCH FOR TIMER
+      // DATE BASED TIMER
+      startTimeRef.current = Date.now() - elapsed;
+      animationFrameRef.current = requestAnimationFrame(update);
+
+      // STOPWATCH TIMER FOR MODE (WORK AND REST)
+      // modeIntervalRef.current = setInterval(() => {
+      //   if (mode === 'work') {
+      //     setWorkTime(prevTime => prevTime + 100);
+      //   } else {
+      //     setRestTime(prevTime => prevTime + 100);
+      //   }
+      // }, 100);
+
+      // STOPWATCH FOR ALARM
       alarmIntervalRef.current = setInterval(() => {
         if (mode === 'work' && isWorkAlarmEnabled) {
           setWorkTimeAlarm(prev => {
@@ -190,6 +227,8 @@ const Stopwatch = () => {
       clearInterval(intervalRef.current);
       clearInterval(modeIntervalRef.current);
       clearInterval(alarmIntervalRef.current);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
 
     return () => {
@@ -205,23 +244,26 @@ const Stopwatch = () => {
    *  */ 
   useEffect(() => {
     if (!logs || logs.length < 1) {
-      // Safely retrieve any existing session from localStorage. If nothing is found, default to an empty array.
       const storedSession = JSON.parse(localStorage.getItem('currentSession')) || [];
-      
-      // Only attempt to revive timestamps and update state when we actually have data.
+
       if (storedSession.length > 0) {
         const revivedTimeStamp = storedSession.map(log => ({
           ...log,
           timestamp: new Date(log.timestamp),
         }));
-        // console.log(logs.log[0].timeMS);
+
         setLogs(revivedTimeStamp);
-        setTime(revivedTimeStamp.reduce((sum, log) => sum + log.timeMS, 0))
+
+        // total = sum of historic segments + current active segment
+        const logsSum = revivedTimeStamp.reduce((sum, log) => sum + log.timeMS, 0);
+        setTime(logsSum + activeSegmentRef.current);
       }
       return;
     }
+
+    // Whenever logs change, persist them
     localStorage.setItem('currentSession', JSON.stringify(logs));
-  }, [mode]);
+  }, [mode, logs]);
 
 
   useEffect(() => {
@@ -277,7 +319,7 @@ const Stopwatch = () => {
     setMode('work');
     setOpenDialogBox(false);
     resetAlarm();
-    
+    setElapsed(0);
     if (type === 'saveDeepwork') {
       createDeepworkSession(value?.trim() || 'Untitled', logs);
     }
@@ -292,7 +334,7 @@ const Stopwatch = () => {
 
     if (mode === 'work'){
       if (workTime >= 5000 || workTime < 5000 && logs.length === 0) {
-        setTime(prevTime => prevTime - workTime)
+        setTime(prevTime => prevTime - workTime < 0 ? 0 : prevTime - workTime)
         setWorkTime(0);
       } else if (workTime < 5000) {  
         setTime(prevTime => prevTime - workTime)
@@ -340,6 +382,8 @@ const Stopwatch = () => {
     if (newMode === mode) return; // Prevent toggling to the same mode
 
     setIsRunning(false); // Pause timers during mode switch
+    cancelAnimationFrame(animationFrameRef.current);
+    setElapsed(0);
     setWorkTimeAlarm(alarmWorkTime);
     setRestTimeAlarm(alarmRestTime);
     
