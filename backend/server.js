@@ -20,7 +20,7 @@ app.use(cors({
 app.use(express.json());
 
 // MAIN ROUTES
-app.use('/api/user', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/deepwork', deepworkRoutes);
 app.use('/api/data', downloadDataRoutes);
 
