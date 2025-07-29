@@ -1,6 +1,5 @@
 const User = require('../models/userModel');
 const Deepwork = require('../models/deepworkModel');
-const Alarm = require('../models/schemas/alarmSchema')
 const jwt = require('jsonwebtoken');
 const {nameValidator, passwordValidator} = require('./inputValidator');
 
@@ -67,7 +66,6 @@ const userDelete = async (req, res) => {
 
         await User.deleteUserModel(userId, password);
         await Deepwork.deleteAllDeepworksModel(userId);
-        await Alarm.deleteAlarmModel(userId);;
         res.status(200).json({ message: "Account successfully deleted" });
     } catch (error) {  
         res.status(400).json({ error: error.message });

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 
-import TimerDialogBox from './TimerDialogBox';
 import DialogBox from "./DialogBox";
 import useDownloadData from '../hooks/useDownloadData';
 import { useDeepwork } from '../hooks/useDeepwork';
@@ -9,7 +8,6 @@ import { useDeepwork } from '../hooks/useDeepwork';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import LogoutIcon from '@mui/icons-material/Logout'
 import SettingsIcon from '@mui/icons-material/Settings'
-import NotificationsIcon from '@mui/icons-material/Notifications'
 import DownloadIcon from '@mui/icons-material/Download';
 
 import { useAuthContext } from '../hooks/contextHook/useAuthContext'
@@ -23,7 +21,6 @@ const Navbar = () => {
     const navigate = useNavigate(); 
 
     const [menuOpen, setMenuOpen] = useState(false);
-    const [openTimerDialogBox, setOpenTimerDialogBox] = useState(false);
     const [openDownloadDialogBox, setOpenDownloadDialogBox] = useState(false)
     const [openLogoutDialogBox, setOpenLogoutDialogBox] = useState(false);
 
@@ -121,18 +118,7 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Notification (right) */}
-            <NotificationsIcon 
-                onClick={() => setOpenTimerDialogBox(!openTimerDialogBox)} 
-                className="text-blue-300 cursor-pointer hover:text-teal-300 transition-colors absolute right-4" 
-                fontSize="large"
-            />
         </header>
-        <div>
-            {openTimerDialogBox && (
-                <TimerDialogBox onClose={() => setOpenTimerDialogBox(false)} /> 
-            )}
-        </div>
         <DialogBox 
             isOpen={openDownloadDialogBox}
             title="Are you sure you want to download your data?"
@@ -155,4 +141,4 @@ const Navbar = () => {
     );
 }
 
-export default Navbar
+export default Navbar;

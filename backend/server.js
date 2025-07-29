@@ -4,9 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const userRoutes = require('./routes/userRoutes');
-const deepworkRoutes =  require('./routes/deepworkRoutes')
-const alarmTimerRoutes = require('./routes/alarmTimerRoutes');
-const downloadDataRoute = require('./routes/downloadDataRoute');
+const deepworkRoutes = require('./routes/deepworkRoutes');
+const downloadDataRoutes = require('./routes/downloadDataRoute');
 
 // CREATES VARIABLE FOR EXPRESS
 const app = express();
@@ -21,10 +20,9 @@ app.use(cors({
 app.use(express.json());
 
 // MAIN ROUTES
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/deepwork', deepworkRoutes);
-app.use('/api/alarmTimer', alarmTimerRoutes);
-app.use('/api/downloadData', downloadDataRoute);
+app.use('/api/data', downloadDataRoutes);
 
 
 // DATABASE AND PORT CONNECTION
