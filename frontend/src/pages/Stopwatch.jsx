@@ -143,18 +143,32 @@ const Stopwatch = () => {
    * ---------------------------------------------------------
    */
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      const now = Date.now();
-      savedStateRef.current.startTimestamp = now;
-      localStorage.setItem('stopwatchState', JSON.stringify(savedStateRef.current));
+    const confirmationMessage = 'Your changes may not be saved if you refresh or close the browser.';
+
+    // Ask the user for confirmation before leaving the page only if there are logs
+    const handleBeforeUnload = (e) => {
+      if (logs && logs.length > 0) {
+        e.preventDefault();
+        e.returnValue = confirmationMessage; // Required for Chrome
+        return confirmationMessage; // For Firefox & Safari
+      }
+      // No return value means no prompt is shown when there are no logs
     };
-  
+
+    // When the page is actually unloading, clear any persisted data regardless
+    const handleUnload = () => {
+      localStorage.removeItem('currentSession');
+      localStorage.removeItem('stopwatchState');
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+    window.addEventListener('unload', handleUnload);
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('unload', handleUnload);
     };
-  }, []);
+  }, [logs]);
   
   /**
    * ---------------------------------------------------------
