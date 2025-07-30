@@ -147,7 +147,7 @@ const Stopwatch = () => {
 
     // Ask the user for confirmation before leaving the page only if there are logs
     const handleBeforeUnload = (e) => {
-      if (logs && logs.length > 0) {
+      if (logs || logs.length > 0 || workTime > 0 || restTime < 0) {
         e.preventDefault();
         e.returnValue = confirmationMessage; // Required for Chrome
         return confirmationMessage; // For Firefox & Safari
