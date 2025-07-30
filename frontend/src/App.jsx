@@ -28,8 +28,6 @@ function App() {
 
   return (
     <div className='App'>
-      <AuthContextProvider>
-        <DeepworkContextProvider>
             <BrowserRouter>
               <Navbar />
               <div className='pages'>
@@ -61,8 +59,6 @@ function App() {
                 </Routes>
               </div>
             </BrowserRouter>
-        </DeepworkContextProvider>
-      </AuthContextProvider>
     </div>
   )
 }
