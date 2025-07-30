@@ -12,5 +12,13 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:5000', // Adjust this as needed
     }
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
 })
