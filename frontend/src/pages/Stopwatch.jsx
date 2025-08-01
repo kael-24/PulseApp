@@ -224,6 +224,7 @@ const Stopwatch = () => {
       const storedSession = JSON.parse(localStorage.getItem('currentSession')) || [];
 
       if (storedSession.length > 0) {
+        // Ensure all timestamps are Date objects when loading from storage
         const revivedTimeStamp = storedSession.map(log => ({
           ...log,
           timestamp: new Date(log.timestamp),
@@ -238,8 +239,14 @@ const Stopwatch = () => {
       return;
     }
 
+    // Before storing, ensure all timestamps are properly serializable
+    const logsToStore = logs.map(log => ({
+      ...log,
+      timestamp: log.timestamp instanceof Date ? log.timestamp.toISOString() : log.timestamp
+    }));
+    
     // Whenever logs change, persist them
-    localStorage.setItem('currentSession', JSON.stringify(logs));
+    localStorage.setItem('currentSession', JSON.stringify(logsToStore));
   }, [mode, logs]);
 
   /**
@@ -258,7 +265,7 @@ const Stopwatch = () => {
    * @param {string} type 
    * @param {string} value 
    */
-  const handleEndSession = (type, value) => {
+  const handleEndSession = async (type, value) => {
     setIsRunning(false);
     setWorkTime(0);
     setRestTime(0);
@@ -268,11 +275,21 @@ const Stopwatch = () => {
     setOpenDialogBox(false);
     setElapsed(0);
     if (type === 'saveDeepwork') {
-      createDeepworkSession(value?.trim() || 'Untitled', logs);
+      try {
+        await createDeepworkSession(value?.trim() || 'Untitled', logs);
+
+        setLogs([]);
+        localStorage.setItem('currentSession', JSON.stringify([])); 
+        // Clear persisted stopwatch state – session is over
+        localStorage.removeItem('stopwatchState');
+      } catch (error) {
+        console.error('Error creating deepwork session:', error);
+      } 
+    } else {
+      // If not saving, just clear storage
+      localStorage.setItem('currentSession', JSON.stringify([])); 
+      localStorage.removeItem('stopwatchState');
     }
-    localStorage.setItem('currentSession', JSON.stringify([])); 
-    // Clear persisted stopwatch state – session is over
-    localStorage.removeItem('stopwatchState');
   };
 
   const handleReturn = () => {
@@ -477,24 +494,28 @@ const Stopwatch = () => {
                 <h3 className="text-blue-300/70 text-sm font-medium mb-2">SESSION LOGS</h3>
                 {logs.length > 0 ? (
                   <div className="space-y-2">
-                    {logs.map((log, index) => (
-                      <div 
-                        key={index} 
-                        className={`flex justify-between items-center p-2 rounded-lg ${
-                          log.mode === 'work' ? 'bg-blue-900/30 border border-blue-700/30' : 'bg-teal-900/30 border border-teal-700/30'
-                        }`}
-                      >
-                        <div>
-                          <span className="text-blue-300 font-medium">
-                            {log.mode === 'work' ? 'Work' : 'Rest'} 
-                          </span>
-                          <span className="text-blue-400/60 text-xs ml-2">
-                            {log.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </span>
+                    {logs.map((log, index) => {
+                      // Ensure timestamp is a Date object
+                      const timestamp = log.timestamp instanceof Date ? log.timestamp : new Date(log.timestamp);
+                      return (
+                        <div 
+                          key={index} 
+                          className={`flex justify-between items-center p-2 rounded-lg ${
+                            log.mode === 'work' ? 'bg-blue-900/30 border border-blue-700/30' : 'bg-teal-900/30 border border-teal-700/30'
+                          }`}
+                        >
+                          <div>
+                            <span className="text-blue-300 font-medium">
+                              {log.mode === 'work' ? 'Work' : 'Rest'} 
+                            </span>
+                            <span className="text-blue-400/60 text-xs ml-2">
+                              {timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </span>
+                          </div>
+                          <div className="font-mono text-blue-300">{log.formattedTime}</div>
                         </div>
-                        <div className="font-mono text-blue-300">{log.formattedTime}</div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-blue-400/60 text-center py-4">
