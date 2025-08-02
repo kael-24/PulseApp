@@ -267,23 +267,28 @@ const Stopwatch = () => {
    */
   const handleEndSession = async (type, value) => {
     setIsRunning(false);
-    setWorkTime(0);
-    setRestTime(0);
-    setTime(0);
-    setLogs([]);
-    setMode('work');
-    setOpenDialogBox(false);
-    setElapsed(0);
+    
+    
     if (type === 'saveDeepwork') {
       try {
-        await createDeepworkSession(value?.trim() || 'Untitled', logs);
+        const response = await createDeepworkSession(value?.trim() || 'Untitled', logs);
+        if (!response)
+          return;
 
+        setWorkTime(0);
+        setRestTime(0);
+        setTime(0);
         setLogs([]);
+        setMode('work');
+        setElapsed(0);
+        setOpenDialogBox(false);
+
         localStorage.setItem('currentSession', JSON.stringify([])); 
         // Clear persisted stopwatch state – session is over
         localStorage.removeItem('stopwatchState');
       } catch (error) {
         console.error('Error creating deepwork session:', error);
+        return;
       } 
     } else {
       // If not saving, just clear storage

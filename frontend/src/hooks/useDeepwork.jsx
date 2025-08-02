@@ -49,9 +49,10 @@ export const useDeepwork = () => {
         getDeepwork();
     };
 
-    const createDeepworkSession = async (deepworkName, deepwork) => {
-        setError(null);
+const createDeepworkSession = async (deepworkName, deepwork) => {
+    setError(null);
 
+    try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deepwork`, {
             method: 'POST',
             body: JSON.stringify({ deepworkName, deepwork }),
@@ -61,13 +62,22 @@ export const useDeepwork = () => {
             }
         });
 
-        const json = await response.json();
+        // Try parsing JSON *safely*
+        const text = await response.text();
+        const json = text ? JSON.parse(text) : {};
 
         if (!response.ok) {
-            setError(json.error);
-            return;
+            setError(json?.error || 'Server error');
+            return false;
         }
-    };
+
+        return true;
+    } catch {
+        setError('Failed to connect to server');
+        return false;
+    }
+};
+
 
     const deleteDeepwork = async (objectId) => {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deepwork/${objectId}`, {
